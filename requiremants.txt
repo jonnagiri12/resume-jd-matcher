@@ -1,0 +1,5 @@
+%%writefile requirements.txt
+sentence-transformers
+scikit-learn
+nltk
+gradio
