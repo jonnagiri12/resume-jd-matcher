@@ -1,34 +1,32 @@
-# resume-jd-matcher
-# Resume vs JD Matcher
+# Resume Checker
 
-A small NLP tool that compares a resume with a job description. It gives a
-match score and lists the important keywords the resume is missing.
+A web app that compares a resume (PDF) with a job description. It shows an
+overall match score, which skills matched, and which skills are missing.
+
+![App screenshot](screenshot.png)
 
 ## Features
-- **Match score** using sentence embeddings (meaning-based, not just exact words)
-- **Missing keywords** shown as skills, including two-word phrases like "power bi"
+- Upload your resume as a **PDF** and paste a job description
+- **Overall match %** shown as an animated ring
+- **Matched vs missing skills** donut chart
+- **Missing skills bars**, sorted by how often the JD mentions them
 - Handles long resumes by comparing chunk by chunk
-- Simple web interface built with Gradio
 
 ## How it works
-1. **Embeddings:** the text is converted into vectors with the
-   `all-MiniLM-L6-v2` model (sentence-transformers).
-2. **Chunked scoring:** each part of the job description is matched to the
-   best-fitting part of the resume, and the best matches are averaged.
-3. **Keyword gap:** words are cleaned, reduced to their roots (stemming), and
-   filler words are removed. Skills in the JD that are not in the resume
-   are listed.
-4. **Aliases:** equivalent terms are treated as the same skill (for example,
-   MySQL counts as SQL).
+1. **PDF to text:** the resume text is extracted with `pypdf`.
+2. **Meaning similarity:** sentence embeddings (`all-MiniLM-L6-v2`) compare
+   each part of the JD with the best-fitting part of the resume.
+3. **Skills coverage:** known skills are detected in both texts, with aliases
+   (for example, MySQL counts as SQL).
+4. **Overall score** = 60% skills coverage + 40% meaning similarity.
 
 ## Why embeddings instead of only TF-IDF?
-My first version used TF-IDF with cosine similarity, but it only matches exact
-words. "ML" and "machine learning" scored 0%. Embeddings understand meaning,
-and the same pair scored about 61%, so the final version uses embeddings for
-the score and keeps simple keyword logic for the missing-skills list.
+My first version used TF-IDF, which only matches exact words, so "ML" and
+"machine learning" scored 0%. Embeddings understand meaning, and the same pair
+scored about 61%.
 
 ## Tech stack
-Python, sentence-transformers, scikit-learn, NLTK, Gradio
+Python, Flask, sentence-transformers, scikit-learn, NLTK, pypdf, HTML/CSS/JavaScript
 
 ## Run it locally
 ```bash
@@ -37,14 +35,13 @@ cd resume-jd-matcher
 pip install -r requirements.txt
 python app.py
 ```
-Then open the local link shown in the terminal.
+Open http://127.0.0.1:5000
 
 ## Limitations
 - The score is a rough guide to similarity, not a hiring prediction.
-- The keyword list is rule-based, so unusual skill names may be missed.
-- The alias list is small and can be extended.
+- The skills list is hand-made, so skills not in it are not detected.
+- Scanned (image-only) PDFs can't be read.
 
 ## Future improvements
-- Extract skills with a proper skills database
-- Support PDF resume upload
-- Deploy online
+- Larger skills database
+- Support for DOCX resumes
