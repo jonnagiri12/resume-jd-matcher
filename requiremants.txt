@@ -1,5 +1,5 @@
-%%writefile requirements.txt
+flask
+pypdf
 sentence-transformers
 scikit-learn
 nltk
-gradio
